@@ -17,7 +17,7 @@ def convert(number: str):
 
 def number2(string):
     first_number_re = re.compile(r"\d|one|two|three|four|five|six|seven|eight|nine")
-    last_number_re = re.compile(r"(\d|one|two|three|four|five|six|seven|eight|nine)(?!(\d|one|two|three|four|five|six|seven|eight|nine))")
+    last_number_re = re.compile(r"(\d|one|two|three|four|five|six|seven|eight|nine)(?!.*(\d|one|two|three|four|five|six|seven|eight|nine)).*")
     first = first_number_re.search(string)
     last = last_number_re.search(string)
     digits = numbers_re.findall(string)
@@ -43,7 +43,8 @@ def solve():
         lines = f.read().split('\n')
         sum = 0
         for line in lines:
-            num = cal_number(line)
+            # num = cal_number(line)
+            num = number2(line)
             print(line, ' => ', num)
             sum += int(num)
 

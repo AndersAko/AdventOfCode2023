@@ -41,11 +41,11 @@ def hand_type2(cards:str) -> HandType:
         return HandType.Five
     if any(c == 4 for c in counts):
         return HandType.Four
-    if any(c == 3 for c in counts) and any(c == 2 for c in counts):
+    if 'J' in cards and hand_type(cards) is HandType.TwoPair or hand_type(cards) is HandType.FullHouse:
         return HandType.FullHouse
     if any(c == 3 for c in counts):
         return HandType.Three
-    if len([1 for c in counts if c == 2]) == 4:
+    if len([1 for c in counts if c == 2]) == 4 and 'J' not in cards:
         return HandType.TwoPair
     if any(c == 2 for c in counts):
         return HandType.Pair

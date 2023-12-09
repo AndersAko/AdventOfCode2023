@@ -21,13 +21,14 @@ def solve():
         for instr in cycle(instructions):
             location = network[location][0] if instr == 'L' else network[location][1]
             steps += 1
-            print (steps, instr, location)
+            # print (steps, instr, location)
             if location == 'ZZZ': break
 
         print(f"Total steps: {steps}")
 
         # Part 2
         locations = [ l for l in network.keys() if l.endswith('A')]
+        print(f"Part2: \nLocations: {locations}")
         steps = 0
         end_points = dict()
         instr_len = len(instructions)

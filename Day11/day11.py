@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 def dist(from_pos, to_pos, expand, factor):
-    if from_pos < to_pos: 
+    if from_pos < to_pos:
         low = from_pos
         high = to_pos
     else:

@@ -2,7 +2,7 @@ from collections import namedtuple
 from copy import deepcopy
 from enum import IntEnum, auto, Enum
 from pathlib import Path
-from queue import PriorityQueue
+from queue import PriorityQueue, Queue
 from cProfile import Profile
 from pstats import SortKey, Stats
 
@@ -108,13 +108,13 @@ def part2(cost_map) -> Move:
 
     print("Part2")
     visited = dict()
-    to_check = PriorityQueue()
+    to_check = Queue()
     best = None
     # Start pos = 0,0
-    to_check.put((remain_cost(0,0,size_r, size_c), Move(0,0,1,None,0,[])))
+    to_check.put(Move(0,0,1,None,0,[]))
     while not to_check.empty():
         # Pick lowest
-        _,next = to_check.get()
+        next = to_check.get()
         if (next.row,next.col,next.last_turn,next.dir) in visited and next.cost >= visited[(next.row,next.col,next.last_turn,next.dir)]:
             continue
         visited[(next.row,next.col,next.last_turn, next.dir)] = next.cost
@@ -132,7 +132,7 @@ def part2(cost_map) -> Move:
         possible = ultra_moves(next, cost_map)
         for m in possible:
             if not (m.row,m.col,m.last_turn,m.dir) in visited or visited[(m.row,m.col,m.last_turn,m.dir)] > m.cost:
-                to_check.put((m.cost + remain_cost(m.row,m.col,size_r, size_c), m))
+                to_check.put(m)
     return best
 
 def print_move(m, cost_map):

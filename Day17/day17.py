@@ -56,7 +56,7 @@ def ultra_moves(move: Move, cost_map) -> list[Move]:
     size_c = len(cost_map[0])
     row, col, last_turn, dir, cost, path = move
     dirs = (d for d in Dir 
-            if (last_turn < 10 and d == dir 
+            if (last_turn <= 10 and d == dir 
                 or (last_turn > 4 and d in [Dir.West, Dir.East] and dir in [ Dir.North, Dir.South])
                 or (last_turn > 4 and d in [Dir.North, Dir.South] and dir in [Dir.West, Dir.East])
                 or dir is None)
@@ -68,7 +68,7 @@ def ultra_moves(move: Move, cost_map) -> list[Move]:
     def next_move(d) -> Move:
         r = row - 1 if d == Dir.North else row + 1 if d == Dir.South else row
         c = col - 1 if d == Dir.West else col + 1 if d == Dir.East else col
-        return Move(r,c, last_turn + 1 if d == dir or dir is None else 2, d, cost + int(cost_map[r][c]),
+        return Move(r,c, last_turn + 1 if d == dir or dir is None else 1, d, cost + int(cost_map[r][c]),
                      path + [(r,c)])
     return [ next_move(d) for d in dirs]
 
@@ -108,13 +108,13 @@ def part2(cost_map) -> Move:
 
     print("Part2")
     visited = dict()
-    to_check = Queue()
+    to_check = PriorityQueue()
     best = None
     # Start pos = 0,0
-    to_check.put(Move(0,0,1,None,0,[]))
+    to_check.put((remain_cost(0,0,size_r, size_c), Move(0,0,1,None,0,[])))
     while not to_check.empty():
         # Pick lowest
-        next = to_check.get()
+        _,next = to_check.get()
         if (next.row,next.col,next.last_turn,next.dir) in visited and next.cost >= visited[(next.row,next.col,next.last_turn,next.dir)]:
             continue
         visited[(next.row,next.col,next.last_turn, next.dir)] = next.cost
@@ -132,7 +132,7 @@ def part2(cost_map) -> Move:
         possible = ultra_moves(next, cost_map)
         for m in possible:
             if not (m.row,m.col,m.last_turn,m.dir) in visited or visited[(m.row,m.col,m.last_turn,m.dir)] > m.cost:
-                to_check.put(m)
+                to_check.put((m.cost + remain_cost(m.row,m.col,size_r, size_c), m))
     return best
 
 def print_move(m, cost_map):

@@ -56,9 +56,9 @@ def ultra_moves(move: Move, cost_map) -> list[Move]:
     size_c = len(cost_map[0])
     row, col, last_turn, dir, cost, path = move
     dirs = (d for d in Dir 
-            if (last_turn <= 10 and d == dir 
-                or (last_turn > 4 and d in [Dir.West, Dir.East] and dir in [ Dir.North, Dir.South])
-                or (last_turn > 4 and d in [Dir.North, Dir.South] and dir in [Dir.West, Dir.East])
+            if (last_turn < 10 and d == dir 
+                or (last_turn >= 4 and d in [Dir.West, Dir.East] and dir in [ Dir.North, Dir.South])
+                or (last_turn >= 4 and d in [Dir.North, Dir.South] and dir in [Dir.West, Dir.East])
                 or dir is None)
             and (d == Dir.North and row > 0 or  
                  d == Dir.East and col < size_c - 1 or 
@@ -111,17 +111,17 @@ def part2(cost_map) -> Move:
     to_check = PriorityQueue()
     best = None
     # Start pos = 0,0
-    to_check.put((remain_cost(0,0,size_r, size_c), Move(0,0,1,None,0,[])))
+    to_check.put((remain_cost(0,0,size_r, size_c), Move(0,0,0,None,0,[(0,0)])))
     while not to_check.empty():
         # Pick lowest
         _,next = to_check.get()
         if (next.row,next.col,next.last_turn,next.dir) in visited and next.cost >= visited[(next.row,next.col,next.last_turn,next.dir)]:
             continue
         visited[(next.row,next.col,next.last_turn, next.dir)] = next.cost
-        if len(visited) % 50000 == 0 and False: 
+        if len(visited) % 50000 == 0: 
             print(f"Checked: {len(visited)}")
             print_move(next, cost_map)
-        if next.row == size_r - 1 and next.col == size_c - 1 and next.last_turn>4:
+        if next.row == size_r - 1 and next.col == size_c - 1 and next.last_turn>=4:
             # If at target = bottom right => quit
             print(f"Part 2: Found a way with {next.cost} in heatloss after checking {len(visited)} states")
             print_move(next, cost_map)

@@ -3,8 +3,8 @@ from day17 import ultra_moves, Move, Dir, part1, part2
 def test_part2_min_4_max_10_from_start_horiz():
     cost_map = ["1111111111111", "2222222222222"]
     expected = [2,1,1,1,2,2,2,2,2,2,1]
-    move = Move(0,0,1,None,0,[(0,0)])
-    for i in range(11):
+    move = Move(0,0,0,None,0,[(0,0)])
+    for i in range(10):
         new_moves = ultra_moves(move, cost_map)
         assert len(new_moves) == expected[i]
         move, = (m for m in new_moves if m.dir == Dir.East)
@@ -15,8 +15,8 @@ def test_part2_min_4_max_10_from_start_horiz():
 def test_part2_min_4_max_10_from_start_vert():
     cost_map = ["1111111111111", "2222222222222", "1111111111111", "2222222222222", "1111111111111", "2222222222222", "1111111111111", "2222222222222", "1111111111111", "2222222222222", "1111111111111", "2222222222222"]
     expected = [2,1,1,1,2,2,2,2,2,2,1]
-    move = Move(0,0,1,None,0,[(0,0)])
-    for i in range(11):
+    move = Move(0,0,0,None,0,[(0,0)])
+    for i in range(10):
         new_moves = ultra_moves(move, cost_map)
         assert len(new_moves) == expected[i]
         move, = (m for m in new_moves if m.dir == Dir.South)
@@ -33,7 +33,7 @@ def test_part2_min_4_max_10_middle_horiz():
         new_moves = ultra_moves(move, cost_map)
         move, = (m for m in new_moves if m.dir == Dir.South)
 
-    for i in range(11):
+    for i in range(10):
         new_moves = ultra_moves(move, cost_map)
         assert len(new_moves) == expected[i]
         if expected[i] == 3:
@@ -53,7 +53,7 @@ def test_part2_min_4_max_10_middle_vert():
         new_moves = ultra_moves(move, cost_map)
         move, = (m for m in new_moves if m.dir == Dir.East)
 
-    for i in range(11):
+    for i in range(10):
         new_moves = ultra_moves(move, cost_map)
         assert len(new_moves) == expected[i]
         if expected[i] == 3:

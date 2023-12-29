@@ -1,13 +1,8 @@
 from copy import deepcopy
 from enum import IntEnum, auto, Enum
 from pathlib import Path
+from more_itertools import peekable
 import re
-
-class Side(Enum):
-    GoingIn = 1
-    Inside = 2
-    GoingOut = 3
-    Outside = 4
 
 def print_trench(trench: dict):
     min_r = min(r for r,_ in trench)
@@ -62,48 +57,86 @@ def solve1(input: list[str]) -> int:
                 count += 1
     print(f"Total size of pit: {count}")
     # print_trench(trench)
-
     return count
 
 
-def solve2(input: list[str]) -> int:
-    trench = list()
-    plan_re = re.compile(r"\w \d+ \(#(\w+)\)")
+def solve2(input: list[str], long_input: bool) -> int:
+    trench_cols = list()
+    trench_rows = list()
+    plan_re = re.compile(r"(\w) (\d+) \(#(\w+)\)")
     row,col = 0,0
     for line in input:
-        instruction = plan_re.findall(line)[0]
-        length = int(instruction[:-1],16)
-        dir = instruction[-1:]
-        if dir == '0':
+        d1, l1, instruction = plan_re.findall(line)[0]
+        if long_input:
+            length = int(instruction[:-1],16)
+            dir = instruction[-1:]
+        else:
+            length = int(l1)
+            dir = d1
+        if dir in  ['0', 'R']:
+            trench_rows.append((row, col, col + length))
             col += length
-        elif dir == '1':
-            trench.append((col,row, row + length, 'D'))
+        elif dir in ['1', 'D']:
+            trench_cols.append((col,row, row + length, 'D'))
             row += length
-        elif dir == '2':
+        elif dir in ['2', 'L']:
+            trench_rows.append((row, col - length, col))
             col -= length
-        elif dir == '3':
-            trench.append((col, row - length, row, 'U'))
+        elif dir in ['3', 'U']:
+            trench_cols.append((col, row - length, row, 'U'))
             row -= length
                 
-    min_r = min(r for _,r,_,_ in trench)
-    min_c = min(c for c,_,_,_ in trench)
-    max_r = max(r for _,r,_,_ in trench)
-    max_c = max(c for c,_,_,_ in trench)
+    min_r = min(r for _,r,_,_ in trench_cols)
+    min_c = min(c for c,_,_,_ in trench_cols)
+    max_r = max(r for _,_,r,_ in trench_cols)
+    max_c = max(c for c,_,_,_ in trench_cols)
     print (f"Trench limits: {(min_c, min_r)} -> {(max_c,max_r)}")
 
-    inside = False
-    last_dir = None
+    row_breaks = peekable(sorted(list({r for _,r,_,_ in trench_cols}.union({r for _,_,r,_ in trench_cols}))))
+
     count = 0
-    for r in range(min_r, max_r+1):
-        intersects = sorted([(c,d) for c,r1,r2,d in trench if r1<=r<=r2])
-        for col, d in intersects:
-            if d != last_dir: 
-                inside = not inside
-                if inside:
-                    last_col = col
+    inside = False
+    for row in row_breaks:
+        intersects = peekable(sorted([(c,d) for c,r1,r2,d in trench_cols if r1<=row<=r2]))
+        this_line_count = 0
+        while True:
+            this_c, this_d = next(intersects, (None, None))
+            if this_c is None: 
+                break
+            next_c, next_d = intersects.peek((None, None))
+            if not inside:
+                if next_d == this_d:
+                    start_col = next_c
+                    next(intersects)
                 else:
-                    count += col - last_col + 1
-            last_dir = d
+                    start_col = this_c
+            else:
+                if next_d == this_d:
+                    this_line_count += this_c - start_col + 1
+                    next(intersects)
+                # elif next_c and (this_c, r) in ((c1,r1) for c1,r1,_,_ in trench_cols):
+                #     this_line_count += next_c - start_col
+                else: 
+                    this_line_count += this_c - start_col + 1
+            inside = not inside
+        # Add all horizontal parts as inside
+        this_line_count += sum(c2-c1-1 for (r1,c1,c2) in trench_rows if r1 == row)  
+
+        assert not inside 
+        count += this_line_count
+
+        if row_breaks.peek(None) is not None:
+            repeat_line_count = 0
+            intersects = sorted([c for c,r1,r2,d in trench_cols if r1<=row+1<=r2])
+            assert all((c,row+1) not in ((cc,r1) for cc,r1,_,_ in trench_cols) and (c,row+1) not in ((cc,r2) for cc,_,r2,_ in trench_cols)  for c in intersects)
+            for col in intersects:
+                if not inside:
+                    start_col = col 
+                else:
+                    repeat_line_count += col - start_col + 1
+                inside = not inside
+            repeat_row = (row_breaks.peek() - row - 1 )
+            count += repeat_row * repeat_line_count
 
     print(f"Total size of pit: {count}")
     # print_trench(trench)
@@ -117,8 +150,8 @@ def solve():
         answer = solve1(lines)
         print (f"Part1: {answer}")
 
-        # answer = solve2(line)
-        # print (f"Part2: {answer}")
+        answer = solve2(lines, True)
+        print (f"Part2: {answer}")
 
 
 

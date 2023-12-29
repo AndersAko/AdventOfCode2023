@@ -1,3 +1,4 @@
+from pathlib import Path
 from day18 import solve1, solve2
 
 input = """R 6 (#70c710)
@@ -20,7 +21,19 @@ def test_solve1():
 
     assert result == 62
 
+def test_solve2_short():
+    result = solve2(input.split('\n'), False)
+
+    assert result == 62
+
 def test_solve2():
-    result = solve2(input.split('\n'))
+    result = solve2(input.split('\n'), True)
 
     assert result == 952408144115
+
+def test_solve2_part1_input():
+    with open(Path(__file__).with_name('input.txt'), 'r') as f:
+        lines = f.read().split('\n')
+        answer = solve2(lines, False)
+
+        assert answer == 49061
